@@ -1,6 +1,12 @@
 use serde::{Deserialize, Serialize};
 use warp::Filter;
 
+mod controllers {
+    pub mod post_save_events_controller;
+}
+
+use controllers::post_save_events_controller::post_save_event_controller;
+
 #[derive(Deserialize, Serialize)]
 struct PostRequest {
     message: String,
@@ -32,7 +38,8 @@ async fn main() {
 
     let router = hello_controller
         .or(root_path_controller)
-        .or(hello_post_controller);
+        .or(hello_post_controller)
+        .or(post_save_event_controller());
 
     warp::serve(router).run(([127, 0, 0, 1], 4040)).await;
 }

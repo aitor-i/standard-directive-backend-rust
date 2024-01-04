@@ -1,36 +1,38 @@
-use std::convert::Infallible;
-use std::net::SocketAddr;
+use serde::{Deserialize, Serialize};
+use warp::Filter;
 
-use http_body_util::Full;
-use hyper::body::Bytes;
-use hyper::server::conn::http1;
-use hyper::service::service_fn;
-use hyper::{Request, Response};
-use hyper_util::rt::TokioIo;
-use tokio::net::TcpListener;
+#[derive(Deserialize, Serialize)]
+struct PostRequest {
+    message: String,
+}
 
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-    let addr = SocketAddr::from(([127, 0, 0, 1], 4000));
-
-    let listener = TcpListener::bind(addr).await?;
-
-    loop {
-        let (stream, _) = listener.accept().await?;
-
-        let io = TokioIo::new(stream);
-
-        tokio::task::spawn(async move {
-            if let Err(err) = http1::Builder::new()
-                .serve_connection(io, service_fn(hello))
-                .await
-            {
-                println!("Error serving connection!: {:?}", err);
-            }
-        });
+async fn main() {
+    #[derive(Deserialize, Serialize)]
+    struct Response {
+        message: String,
     }
 
-    async fn hello(_: Request<hyper::body::Incoming>) -> Result<Response<Full<Bytes>>, Infallible> {
-        Ok(Response::new(Full::new(Bytes::from("Hello, World!"))))
-    }
+    let hello_controller = warp::path("hello").and(warp::get()).map(|| {
+        let response = Response {
+            message: "hello rust".into(),
+        };
+        warp::reply::json(&response)
+    });
+
+    let hello_post_controller = warp::path("post-hello")
+        .and(warp::post())
+        .and(warp::body::json::<PostRequest>())
+        .map(|body: PostRequest| warp::reply::json(&body.message));
+
+    let root_path_controller = warp::get().map(|| {
+        let response = "Service is up!";
+        warp::reply::json(&response)
+    });
+
+    let router = hello_controller
+        .or(root_path_controller)
+        .or(hello_post_controller);
+
+    warp::serve(router).run(([127, 0, 0, 1], 4040)).await;
 }

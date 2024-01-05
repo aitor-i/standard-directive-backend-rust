@@ -1,11 +1,11 @@
 use serde::{Deserialize, Serialize};
 use warp::Filter;
 
-mod controllers {
-    pub mod post_save_events_controller;
-}
+pub mod application;
+pub mod controllers;
+pub mod domain;
 
-use controllers::post_save_events_controller::post_save_event_controller;
+use controllers::post_save_event_controller::post_save_event_controller;
 
 #[derive(Deserialize, Serialize)]
 struct PostRequest {

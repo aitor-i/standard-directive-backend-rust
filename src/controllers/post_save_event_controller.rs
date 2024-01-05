@@ -1,19 +1,11 @@
-use chrono::{NaiveDateTime, ParseError};
 use serde::{Deserialize, Serialize};
 use warp::{Filter, Rejection, Reply};
 
-use standard_directive_n2_backend::domain::models::calendar_to_save::CalendarToSave;
-
+use crate::application::convert_string_to_date::convert_string_to_date;
+use crate::domain::models::calendar_to_save::CalendarToSave;
 #[derive(Deserialize, Serialize)]
 struct Message {
     mesage: String,
-}
-
-fn convert_string_to_date(date_in_string_format: &String) -> Result<NaiveDateTime, ParseError> {
-    let format = "%Y-%m-%d %H:%M:%S";
-    let naive_date = NaiveDateTime::parse_from_str(&date_in_string_format, format);
-
-    return naive_date;
 }
 
 pub fn post_save_event_controller() -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone

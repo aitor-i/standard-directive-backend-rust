@@ -3,6 +3,7 @@ use warp::Filter;
 
 pub mod application;
 pub mod controllers;
+pub mod data_access;
 pub mod domain;
 
 use controllers::post_save_event_controller::post_save_event_controller;

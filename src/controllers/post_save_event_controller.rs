@@ -14,7 +14,7 @@ async fn request_mapper(body: CalendarToSave) -> Result<impl Reply, Rejection> {
     match formated_date {
         Ok(formated_date) => {
             println!("{:?}", &formated_date);
-            add_event_to_db().await;
+            let _ = add_event_to_db(&body).await;
             Ok(warp::reply::json(&body))
         }
         Err(err) => {

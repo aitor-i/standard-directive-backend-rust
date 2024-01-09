@@ -6,6 +6,7 @@ pub mod controllers;
 pub mod data_access;
 pub mod domain;
 
+use controllers::get_calendar_by_date_controller::get_calendar_by_date_controller;
 use controllers::get_calendars_controller::get_calendars_controller;
 use controllers::post_save_event_controller::post_save_event_controller;
 
@@ -39,6 +40,7 @@ async fn main() {
     });
 
     let router = hello_controller
+        .or(get_calendar_by_date_controller())
         .or(get_calendars_controller())
         .or(root_path_controller)
         .or(hello_post_controller)

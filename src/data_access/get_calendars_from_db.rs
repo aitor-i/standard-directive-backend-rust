@@ -10,7 +10,7 @@ struct CalendarModel {
     calendar_id: String,
 }
 
-pub async fn get_calendars_from_db() -> Result<(), mongodb::error::Error> {
+pub async fn get_calendars_from_db() -> Result<Vec<CalendarToSave>, mongodb::error::Error> {
     let connection_string = "mongodb://localhost:27017";
     let db_name = "standard_directive";
     let collection_name = "calendars";
@@ -27,5 +27,5 @@ pub async fn get_calendars_from_db() -> Result<(), mongodb::error::Error> {
         calendars.push(calendar);
     }
 
-    Ok(())
+    Ok(calendars)
 }

@@ -1,7 +1,5 @@
 use serde::{Deserialize, Serialize};
 
-use crate::domain::models::event::Event;
-
 #[derive(Deserialize, Serialize, Debug)]
 pub struct CalendarToSave {
     pub calendar_date: String,

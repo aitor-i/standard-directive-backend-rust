@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 pub struct CalendarToSave {
     pub calendar_date: String,
     pub calendar_id: CalendarId,
+    pub user_id: UserId,
     // pub events: [Event; 24],
 }
 
@@ -11,4 +12,4 @@ pub struct CalendarToSave {
 pub struct CalendarId(String);
 
 #[derive(Deserialize, Serialize, Debug)]
-struct UserId(String);
+pub struct UserId(String);

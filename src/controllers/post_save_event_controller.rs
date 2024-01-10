@@ -1,13 +1,8 @@
-use serde::{Deserialize, Serialize};
 use warp::{Filter, Rejection, Reply};
 
 use crate::application::convert_string_to_date::convert_string_to_date;
 use crate::data_access::add_event_to_db::add_event_to_db;
 use crate::domain::models::calendar_to_save::CalendarToSave;
-#[derive(Deserialize, Serialize)]
-struct Message {
-    mesage: String,
-}
 
 async fn request_mapper(body: CalendarToSave) -> Result<impl Reply, Rejection> {
     let formated_date = convert_string_to_date(&body.calendar_date);

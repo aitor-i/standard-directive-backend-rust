@@ -9,6 +9,7 @@ use crate::{
 #[derive(Deserialize)]
 struct QueryParams {
     date: String,
+    user_id: String,
 }
 
 async fn request_mapper(params: QueryParams) -> Result<impl Reply, Rejection> {
@@ -16,7 +17,7 @@ async fn request_mapper(params: QueryParams) -> Result<impl Reply, Rejection> {
 
     match date {
         Ok(date) => {
-            let db_res = get_calendar_by_date(date).await;
+            let db_res = get_calendar_by_date(date, params.user_id).await;
             match db_res {
                 Ok(calendar) => Ok(warp::reply::json(&calendar)),
                 Err(err) => {

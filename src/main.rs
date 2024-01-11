@@ -7,6 +7,8 @@ pub mod domain;
 pub mod routers;
 
 use routers::calendar_router::calendar_router;
+use routers::users_router::users_router;
+use warp::Filter;
 
 #[derive(Deserialize, Serialize)]
 struct PostRequest {
@@ -20,7 +22,7 @@ async fn main() {
         message: String,
     }
 
-    let router = calendar_router();
+    let router = calendar_router().or(users_router());
 
     warp::serve(router).run(([127, 0, 0, 1], 4040)).await;
 }

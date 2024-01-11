@@ -1,6 +1,9 @@
 use warp::{Filter, Rejection, Reply};
 
-use crate::{data_access::users::add_user_db::add_user_db, domain::models::user::User};
+use crate::{
+    data_access::users::{add_user_db::add_user_db, is_username_free::is_username_free},
+    domain::models::user::User,
+};
 
 pub fn register_user_controller() -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
     warp::path("register-user")
@@ -11,6 +14,9 @@ pub fn register_user_controller() -> impl Filter<Extract = impl Reply, Error = R
 }
 
 async fn request_mapper(body: User) -> Result<impl Reply, Rejection> {
+    if let Ok(false) = is_username_free(&body.username).await {
+        return Ok(warp::reply::json(&"userna is taken"));
+    }
     let db_res = add_user_db(&body).await;
     match db_res {
         Ok(()) => Ok(warp::reply::json(&body)),

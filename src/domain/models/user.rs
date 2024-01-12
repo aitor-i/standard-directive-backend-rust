@@ -1,9 +1,5 @@
 #[derive(serde::Serialize, serde::Deserialize, Debug)]
 pub struct User {
     pub username: String,
-    password: String,
-    user_id: UserId,
+    pub password: String,
 }
-
-#[derive(serde::Serialize, serde::Deserialize, Debug)]
-pub struct UserId(String);

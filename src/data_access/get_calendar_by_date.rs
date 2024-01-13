@@ -5,7 +5,7 @@ use mongodb::Client;
 use crate::domain::models::calendar_to_save::CalendarToSave;
 
 pub async fn get_calendar_by_date(
-    date: NaiveDateTime,
+    date: String,
     user_id: String,
 ) -> Result<Option<CalendarToSave>, mongodb::error::Error> {
     let connection_string = "mongodb://localhost:27017";

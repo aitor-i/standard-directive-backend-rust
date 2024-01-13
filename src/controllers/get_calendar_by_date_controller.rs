@@ -13,19 +13,11 @@ struct QueryParams {
 }
 
 async fn request_mapper(params: QueryParams) -> Result<impl Reply, Rejection> {
-    let date = convert_string_to_date(&params.date);
+    let date = params.date;
 
-    match date {
-        Ok(date) => {
-            let db_res = get_calendar_by_date(date, params.user_id).await;
-            match db_res {
-                Ok(calendar) => Ok(warp::reply::json(&calendar)),
-                Err(err) => {
-                    let error_message = err.to_string();
-                    Ok(warp::reply::json(&error_message))
-                }
-            }
-        }
+    let db_res = get_calendar_by_date(date, params.user_id).await;
+    match db_res {
+        Ok(calendar) => Ok(warp::reply::json(&calendar)),
         Err(err) => {
             let error_message = err.to_string();
             Ok(warp::reply::json(&error_message))

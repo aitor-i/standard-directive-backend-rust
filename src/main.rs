@@ -21,8 +21,13 @@ async fn main() {
     struct Response {
         message: String,
     }
+    let cors = warp::cors()
+        .allow_any_origin() // or specify like .allow_origin("http://example.com")
+        .allow_methods(vec!["GET", "POST", "DELETE", "PUT", "OPTIONS"])
+        .allow_headers(vec!["content-type", "Authorization"])
+        .build();
 
-    let router = calendar_router().or(users_router());
+    let router = calendar_router().or(users_router()).with(cors);
 
     warp::serve(router).run(([127, 0, 0, 1], 4040)).await;
 }

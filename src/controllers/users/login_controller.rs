@@ -1,8 +1,11 @@
 use crate::{
-    application::is_password_correct::is_password_correct,
-    data_access::users::find_user_by_username::find_user_by_username, domain::models::user::User,
+    application::{generate_token::generate_token, is_password_correct::is_password_correct},
+    data_access::users::find_user_by_username::find_user_by_username,
+    domain::models::{auth_token::AuthToken, user::User},
 };
 use warp::{Filter, Rejection, Reply};
+
+use crate::domain::models::response::Response;
 
 pub fn login_controller() -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
     warp::path("login")
@@ -11,12 +14,18 @@ pub fn login_controller() -> impl Filter<Extract = impl Reply, Error = Rejection
         .and_then(request_mapper)
         .boxed()
 }
-
 async fn request_mapper(body: User) -> Result<impl Reply, Rejection> {
     let db_res = find_user_by_username(&body.username).await;
     if let Ok(Some(user)) = &db_res {
         if is_password_correct(body.password.clone(), &user.password.clone()) {
-            return Ok(warp::reply::json(&"loged!!"));
+            let auth_token = AuthToken::without_roles(body.username.clone());
+            let token = match generate_token(auth_token) {
+                Ok(token_ok) => token_ok,
+                Err(_) => "Error on token generation".to_string(),
+            };
+            let response =
+                Response::login_response("Loged!".to_string(), token, body.username.clone());
+            Ok(warp::reply::json(&response))
         } else {
             return Ok(warp::reply::json(&"invalid username or password"));
         }

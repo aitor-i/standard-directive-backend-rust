@@ -2,8 +2,9 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct AuthToken {
-    username: String,
-    roles: Option<Roles>,
+    pub username: String,
+    pub roles: Option<Roles>,
+    pub exp: usize,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -14,6 +15,7 @@ impl AuthToken {
         AuthToken {
             username,
             roles: None,
+            exp: 10000000000,
         }
     }
 }

@@ -7,5 +7,6 @@ pub struct Calendar {
     eventPosition: Option<String>,
     hour: u8,
     hourDisplay: String,
-    taskId: Option<u16>,
+    taskId: Option<usize>,
+    isCompleted: bool,
 }

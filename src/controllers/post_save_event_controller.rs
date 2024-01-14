@@ -2,6 +2,7 @@ use warp::{Filter, Rejection, Reply};
 
 use crate::application::validate_token::validate_token;
 use crate::data_access::add_event_to_db::add_event_to_db;
+use crate::data_access::update_calendar::update_calendar;
 use crate::domain::models::calendar_db::CalendarDb;
 use crate::domain::models::calendar_to_save::CalendarToSave;
 
@@ -20,10 +21,13 @@ async fn request_mapper(body: CalendarToSave) -> Result<impl Reply, Rejection> {
                 username,
             };
 
-            match add_event_to_db(&calendar_for_db).await {
-                Ok(_) => Ok(warp::reply::json(&body)),
-                Err(err) => Ok(warp::reply::json(&err.to_string())),
-            }
+            match update_calendar(&calendar_for_db).await {
+                Ok(_) => return Ok(warp::reply::json(&body)),
+                Err(_) => match add_event_to_db(&calendar_for_db).await {
+                    Ok(_) => return Ok(warp::reply::json(&body)),
+                    Err(err) => return Ok(warp::reply::json(&err.to_string())),
+                },
+            };
         }
         Err(err) => Ok(warp::reply::json(&err.to_string())),
     }

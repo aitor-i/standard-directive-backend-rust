@@ -13,8 +13,6 @@ async fn request_mapper(body: CalendarToSave) -> Result<impl Reply, Rejection> {
             let calendar_date = body.calendar_date.clone();
             let username = token.username;
 
-            println!("Time of token {}", token.exp);
-
             let calendar_for_db = CalendarDb {
                 calendar_date,
                 calendar,

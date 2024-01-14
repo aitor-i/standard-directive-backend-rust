@@ -1,4 +1,5 @@
 use bson::{doc, Document};
+use mongodb::error::Error;
 use mongodb::{Client, Collection};
 
 use crate::domain::models::calendar_db::CalendarDb;
@@ -18,8 +19,22 @@ pub async fn update_calendar(calendar: &CalendarDb) -> mongodb::error::Result<()
     match bson::to_bson(&calendar.calendar) {
         Ok(calendar_bson) => {
             let update = doc! { "$set": { "calendar": calendar_bson} };
-            collection.update_one(filter, update, None).await?;
-            Ok(())
+
+            match collection.update_one(filter, update, None).await {
+                Ok(colletion) => {
+                    println!("Update");
+                    if colletion.matched_count == 0 {
+                        let custom_error = Error::custom("No calendar found");
+                        return Err(custom_error);
+                    };
+                    return Ok(());
+                }
+
+                Err(err) => {
+                    println!("Error or saving { }", err);
+                    return Err(err);
+                }
+            }
         }
         Err(err) => {
             println!("Error on parsing {}", err);

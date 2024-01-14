@@ -2,7 +2,7 @@ use serde::Deserialize;
 use warp::{Filter, Rejection, Reply};
 
 use crate::{
-    application::{convert_string_to_date::convert_string_to_date, validate_token::validate_token},
+    application::validate_token::validate_token,
     data_access::get_calendar_by_date::get_calendar_by_date,
 };
 
@@ -17,7 +17,6 @@ async fn request_mapper(params: QueryParams) -> Result<impl Reply, Rejection> {
 
     match validate_token(&params.token) {
         Ok(token) => {
-            println!("username: {}, date: {}", &token.username, &date);
             let db_res = get_calendar_by_date(date, token.username).await;
             match db_res {
                 Ok(calendar) => Ok(warp::reply::json(&calendar)),

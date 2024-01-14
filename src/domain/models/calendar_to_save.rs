@@ -1,11 +1,12 @@
 use serde::{Deserialize, Serialize};
 
+use super::calendar::Calendar;
+
 #[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct CalendarToSave {
     pub calendar_date: String,
-    pub calendar_id: CalendarId,
-    pub user_id: UserId,
-    // pub events: [Event; 24],
+    pub calendar: [Calendar; 24],
+    pub token: String,
 }
 
 #[derive(Deserialize, Serialize, Clone, Debug)]

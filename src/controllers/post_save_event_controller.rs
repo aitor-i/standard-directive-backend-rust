@@ -1,21 +1,31 @@
 use warp::{Filter, Rejection, Reply};
 
-use crate::application::convert_string_to_date::convert_string_to_date;
+use crate::application::validate_token::validate_token;
 use crate::data_access::add_event_to_db::add_event_to_db;
+use crate::domain::models::calendar_db::CalendarDb;
 use crate::domain::models::calendar_to_save::CalendarToSave;
 
 async fn request_mapper(body: CalendarToSave) -> Result<impl Reply, Rejection> {
-    let formated_date = convert_string_to_date(&body.calendar_date);
-    match formated_date {
-        Ok(formated_date) => {
-            println!("{:?}", &formated_date);
-            let _ = add_event_to_db(&body).await;
-            Ok(warp::reply::json(&body))
+    match validate_token(&body.token) {
+        Ok(token) => {
+            let calendar = body.calendar.clone();
+            let calendar_date = body.calendar_date.clone();
+            let username = token.username;
+
+            println!("Time of token {}", token.exp);
+
+            let calendar_for_db = CalendarDb {
+                calendar_date,
+                calendar,
+                username,
+            };
+
+            match add_event_to_db(&calendar_for_db).await {
+                Ok(_) => Ok(warp::reply::json(&body)),
+                Err(err) => Ok(warp::reply::json(&err.to_string())),
+            }
         }
-        Err(err) => {
-            let error_message = err.to_string();
-            Ok(warp::reply::json(&error_message))
-        }
+        Err(err) => Ok(warp::reply::json(&err.to_string())),
     }
 }
 

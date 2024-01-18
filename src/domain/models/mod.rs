@@ -4,4 +4,5 @@ pub mod calendar_db;
 pub mod calendar_to_save;
 pub mod event;
 pub mod response;
+pub mod task;
 pub mod user;

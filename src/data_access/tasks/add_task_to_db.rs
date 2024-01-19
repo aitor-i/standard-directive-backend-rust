@@ -1,9 +1,12 @@
-use crate::{application::struct_to_document::struct_to_document, domain::models::task::Task};
+use crate::{
+    application::struct_to_document::struct_to_document,
+    domain::models::{save_tasks_view_model::TaskDbModel, task::Task},
+};
 
 use bson::Document;
 use mongodb::{Client, Collection};
 
-pub async fn add_task_to_db(task: Task) -> mongodb::error::Result<()> {
+pub async fn add_task_to_db(task: TaskDbModel) -> mongodb::error::Result<()> {
     let connection_string = "mongodb://localhost:27017";
     let db_name = "standard_directive";
     let collection_name = "tasks";

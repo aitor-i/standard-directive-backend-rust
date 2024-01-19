@@ -7,11 +7,12 @@ use crate::{
     application::validate_token::validate_token, data_access::tasks::add_task_to_db::add_task_to_db,
 };
 
-pub fn post_add_task_controller() -> impl Filter<Extract = impl Reply, Error = Rejection> {
+pub fn post_add_task_controller() -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
     warp::post()
         .and(warp::path("save-tasks"))
         .and(warp::body::json::<SaveTasksViewModel>())
         .and_then(repuest_handler)
+        .boxed()
 }
 async fn repuest_handler(body: SaveTasksViewModel) -> Result<impl Reply, Rejection> {
     let token = match validate_token(&body.token) {

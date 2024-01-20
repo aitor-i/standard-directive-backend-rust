@@ -1,6 +1,6 @@
 use crate::{
     application::struct_to_document::struct_to_document,
-    domain::models::{save_tasks_view_model::TaskDbModel, task::Task},
+    domain::models::save_tasks_view_model::TaskDbModel,
 };
 
 use bson::Document;

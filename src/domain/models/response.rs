@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use super::calendar_to_save::CalendarToSave;
+use super::{calendar_to_save::CalendarToSave, task::Task};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Response {
@@ -8,6 +8,7 @@ pub struct Response {
     token: Option<String>,
     username: Option<String>,
     calendar: Option<CalendarToSave>,
+    tasks: Option<Vec<Task>>,
 }
 
 impl Response {
@@ -17,6 +18,7 @@ impl Response {
             token: None,
             username: None,
             calendar: None,
+            tasks: None,
         }
     }
 
@@ -26,6 +28,17 @@ impl Response {
             token: Some(token),
             username: Some(username),
             calendar: None,
+            tasks: None,
+        }
+    }
+
+    pub fn task_response(message: String, tasks: Vec<Task>) -> Response {
+        Response {
+            message,
+            token: None,
+            username: None,
+            calendar: None,
+            tasks: Some(tasks),
         }
     }
 }

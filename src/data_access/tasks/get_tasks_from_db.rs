@@ -8,7 +8,7 @@ pub async fn get_tasks_from_db(
 ) -> Result<Option<TaskDbModel>, mongodb::error::Error> {
     let connection_string = "mongodb://localhost:27017";
     let db_name = "standard_directive";
-    let collection_name = "calendars";
+    let collection_name = "tasks";
 
     let client = Client::with_uri_str(connection_string).await?;
     let database = client.database(db_name);

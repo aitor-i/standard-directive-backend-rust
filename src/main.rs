@@ -7,6 +7,7 @@ pub mod domain;
 pub mod routers;
 
 use routers::calendar_router::calendar_router;
+use routers::tasks_router::tasks_router;
 use routers::users_router::users_router;
 use warp::Filter;
 
@@ -27,7 +28,10 @@ async fn main() {
         .allow_headers(vec!["content-type", "Authorization"])
         .build();
 
-    let router = calendar_router().or(users_router()).with(cors);
+    let router = calendar_router()
+        .or(users_router())
+        .or(tasks_router())
+        .with(cors);
 
     warp::serve(router).run(([127, 0, 0, 1], 4040)).await;
 }

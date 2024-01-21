@@ -1,11 +1,10 @@
 use warp::{Filter, Rejection, Reply};
 
+use crate::data_access::tasks::update_tasks::update_tasks;
 use crate::domain::models::response::Response;
 
+use crate::application::validate_token::validate_token;
 use crate::domain::models::save_tasks_view_model::{SaveTasksViewModel, TaskDbModel};
-use crate::{
-    application::validate_token::validate_token, data_access::tasks::add_task_to_db::add_task_to_db,
-};
 
 pub fn post_add_task_controller() -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone {
     warp::post()
@@ -25,7 +24,7 @@ async fn repuest_handler(body: SaveTasksViewModel) -> Result<impl Reply, Rejecti
         tasks: body.tasks,
     };
 
-    match add_task_to_db(task_for_db).await {
+    match update_tasks(task_for_db.username, task_for_db.tasks).await {
         Ok(_) => {
             let message = Response::message_only("Task add successfully".to_string());
             return Ok(warp::reply::json(&message));

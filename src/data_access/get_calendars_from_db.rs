@@ -4,6 +4,8 @@ use mongodb::Client;
 use serde::{Deserialize, Serialize};
 
 use crate::domain::models::calendar_to_save::CalendarToSave;
+use dotenv::dotenv;
+use std::env;
 
 #[derive(Serialize, Deserialize)]
 struct CalendarModel {
@@ -11,7 +13,9 @@ struct CalendarModel {
 }
 
 pub async fn get_calendars_from_db() -> Result<Vec<CalendarToSave>, mongodb::error::Error> {
-    let connection_string = "mongodb://localhost:27017";
+    dotenv().ok();
+
+    let connection_string = env::var("CONNECTION_STRING").expect("DATABASE_URL must be set");
     let db_name = "standard_directive";
     let collection_name = "calendars";
 

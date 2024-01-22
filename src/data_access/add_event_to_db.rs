@@ -2,10 +2,14 @@ use crate::{
     application::struct_to_document::struct_to_document, domain::models::calendar_db::CalendarDb,
 };
 use bson::Document;
+use dotenv::dotenv;
 use mongodb::{Client, Collection};
+use std::env;
 
 pub async fn add_event_to_db(calendar: &CalendarDb) -> mongodb::error::Result<()> {
-    let connection_string = "mongodb://localhost:27017";
+    dotenv().ok();
+
+    let connection_string = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
     let db_name = "standard_directive";
     let collection_name = "calendars";
 

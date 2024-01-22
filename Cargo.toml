@@ -8,6 +8,7 @@ edition = "2021"
 [dependencies]
 hyper = {version = "1", features = ["full"]}
 tokio = { version = "1", features = ["full"] }
+
 http-body-util = "0.1"
 hyper-util= {version = "0.1", features=["full"]}
 warp = "0.3"
@@ -19,3 +20,4 @@ bson = "2.0"
 futures = "0.3"
 bcrypt = "0.8.2"
 jsonwebtoken = "7.2.0"
+dotenv = "0.15.0"

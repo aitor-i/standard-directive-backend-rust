@@ -9,7 +9,7 @@ use std::env;
 pub async fn add_event_to_db(calendar: &CalendarDb) -> mongodb::error::Result<()> {
     dotenv().ok();
 
-    let connection_string = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
+    let connection_string = env::var("CONNECTION_STRING").expect("DATABASE_URL must be set");
     let db_name = "standard_directive";
     let collection_name = "calendars";
 

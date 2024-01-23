@@ -4,8 +4,13 @@ use mongodb::Client;
 
 use crate::domain::models::user::User;
 
+use dotenv::dotenv;
+use std::env;
+
 pub async fn update_password(username: String, new_password: String) -> mongodb::error::Result<()> {
-    let connection_string = "mongodb://localhost:27017";
+    dotenv().ok();
+
+    let connection_string = env::var("CONNECTION_STRING").expect("DATABASE_URL must be set");
     let db_name = "standard_directive";
     let collection_name = "users";
 

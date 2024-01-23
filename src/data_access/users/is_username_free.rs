@@ -3,8 +3,13 @@ use mongodb::bson::doc;
 
 use mongodb::Client;
 
+use dotenv::dotenv;
+use std::env;
+
 pub async fn is_username_free(username: &String) -> Result<bool, mongodb::error::Error> {
-    let connection_string = "mongodb://localhost:27017";
+    dotenv().ok();
+
+    let connection_string = env::var("CONNECTION_STRING").expect("DATABASE_URL must be set");
     let db_name = "standard_directive";
     let collection_name = "users";
 

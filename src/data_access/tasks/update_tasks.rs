@@ -3,9 +3,13 @@ use mongodb::error::Error;
 use mongodb::{Client, Collection};
 
 use crate::domain::models::task::Task;
+use dotenv::dotenv;
+use std::env;
 
 pub async fn update_tasks(username: String, tasks: Vec<Task>) -> mongodb::error::Result<()> {
-    let connection_string = "mongodb://localhost:27017";
+    dotenv().ok();
+
+    let connection_string = env::var("CONNECTION_STRING").expect("DATABASE_URL must be set");
     let db_name = "standard_directive";
     let collection_name = "tasks";
 

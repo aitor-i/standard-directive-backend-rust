@@ -4,10 +4,14 @@ use crate::{
 };
 
 use bson::Document;
+use dotenv::dotenv;
 use mongodb::{Client, Collection};
+use std::env;
 
 pub async fn add_task_to_db(task: TaskDbModel) -> mongodb::error::Result<()> {
-    let connection_string = "mongodb://localhost:27017";
+    dotenv().ok();
+
+    let connection_string = env::var("CONNECTION_STRING").expect("DATABASE_URL must be set");
     let db_name = "standard_directive";
     let collection_name = "tasks";
 

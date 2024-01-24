@@ -1,3 +1,4 @@
+use crate::domain::models::response::Response;
 use serde::Deserialize;
 use warp::{Filter, Rejection, Reply};
 
@@ -12,21 +13,30 @@ struct QueryParams {
     token: String,
 }
 
-async fn request_mapper(params: QueryParams) -> Result<impl Reply, Rejection> {
+async fn request_mapper(params: QueryParams) -> Result<Box<dyn Reply>, Rejection> {
     let date = params.date.clone();
 
     match validate_token(&params.token) {
         Ok(token) => {
             let db_res = get_calendar_by_date(date, token.username).await;
             match db_res {
-                Ok(calendar) => Ok(warp::reply::json(&calendar)),
+                Ok(calendar) => Ok(Box::new(warp::reply::json(&calendar))),
                 Err(err) => {
-                    let error_message = err.to_string();
-                    Ok(warp::reply::json(&error_message))
+                    let message = err.to_string();
+                    Ok(Box::new(warp::reply::with_status(
+                        warp::reply::json(&message),
+                        warp::http::StatusCode::INTERNAL_SERVER_ERROR,
+                    )))
                 }
             }
         }
-        Err(err) => Ok(warp::reply::json(&err.to_string())),
+        Err(err) => {
+            let message = Response::message_only(err.to_string());
+            Ok(Box::new(warp::reply::with_status(
+                warp::reply::json(&message),
+                warp::http::StatusCode::UNAUTHORIZED,
+            )))
+        }
     }
 }
 

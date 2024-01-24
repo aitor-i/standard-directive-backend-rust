@@ -5,8 +5,9 @@ use crate::data_access::add_event_to_db::add_event_to_db;
 use crate::data_access::update_calendar::update_calendar;
 use crate::domain::models::calendar_db::CalendarDb;
 use crate::domain::models::calendar_to_save::CalendarToSave;
+use crate::domain::models::response::Response;
 
-async fn request_mapper(body: CalendarToSave) -> Result<impl Reply, Rejection> {
+async fn request_mapper(body: CalendarToSave) -> Result<Box<dyn Reply>, Rejection> {
     match validate_token(&body.token) {
         Ok(token) => {
             let calendar = body.calendar.clone();
@@ -20,14 +21,23 @@ async fn request_mapper(body: CalendarToSave) -> Result<impl Reply, Rejection> {
             };
 
             match update_calendar(&calendar_for_db).await {
-                Ok(_) => return Ok(warp::reply::json(&body)),
+                Ok(_) => return Ok(Box::new(warp::reply::json(&body))),
                 Err(_) => match add_event_to_db(&calendar_for_db).await {
-                    Ok(_) => return Ok(warp::reply::json(&body)),
-                    Err(err) => return Ok(warp::reply::json(&err.to_string())),
+                    Ok(_) => return Ok(Box::new(warp::reply::json(&body))),
+                    Err(err) => {
+                        let message = Response::message_only(err.to_string());
+                        return Ok(Box::new(warp::reply::with_status(
+                            warp::reply::json(&message),
+                            warp::http::StatusCode::INTERNAL_SERVER_ERROR,
+                        )));
+                    }
                 },
             };
         }
-        Err(err) => Ok(warp::reply::json(&err.to_string())),
+        Err(err) => Ok(Box::new(warp::reply::with_status(
+            err.to_string(),
+            warp::http::StatusCode::INTERNAL_SERVER_ERROR,
+        ))),
     }
 }
 

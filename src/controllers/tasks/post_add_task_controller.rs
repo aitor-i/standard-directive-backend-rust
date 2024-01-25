@@ -16,7 +16,13 @@ pub fn post_add_task_controller() -> impl Filter<Extract = impl Reply, Error = R
 async fn repuest_handler(body: SaveTasksViewModel) -> Result<impl Reply, Rejection> {
     let token = match validate_token(&body.token) {
         Ok(token) => token,
-        Err(_) => return Ok(warp::reply::json(&"Error on token validation")),
+        Err(_) => {
+            let message = "Error on token validation".to_string();
+            return Ok(Box::new(warp::reply::with_status(
+                warp::reply::json(&message),
+                warp::http::StatusCode::INTERNAL_SERVER_ERROR,
+            )));
+        }
     };
 
     let task_for_db = TaskDbModel {
@@ -27,11 +33,17 @@ async fn repuest_handler(body: SaveTasksViewModel) -> Result<impl Reply, Rejecti
     match update_tasks(task_for_db.username, task_for_db.tasks).await {
         Ok(_) => {
             let message = Response::message_only("Task add successfully".to_string());
-            return Ok(warp::reply::json(&message));
+            return Ok(Box::new(warp::reply::with_status(
+                warp::reply::json(&message),
+                warp::http::StatusCode::OK,
+            )));
         }
         Err(err) => {
             let message = Response::message_only(err.to_string());
-            return Ok(warp::reply::json(&message));
+            return Ok(Box::new(warp::reply::with_status(
+                warp::reply::json(&message),
+                warp::http::StatusCode::INTERNAL_SERVER_ERROR,
+            )));
         }
     }
 }

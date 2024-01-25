@@ -18,20 +18,32 @@ pub fn get_tasks_controller() -> impl Filter<Extract = impl Reply, Error = Rejec
         .and_then(request_handler)
 }
 
-async fn request_handler(params: QueryParams) -> Result<impl Reply, Rejection> {
+async fn request_handler(params: QueryParams) -> Result<Box<impl Reply>, Rejection> {
     let token = match validate_token(&params.token) {
         Ok(token) => token,
-        Err(err) => return Ok(warp::reply::json(&err.to_string())),
+        Err(err) => {
+            let message = err.to_string();
+            return Ok(Box::new(warp::reply::with_status(
+                warp::reply::json(&message),
+                warp::http::StatusCode::INTERNAL_SERVER_ERROR,
+            )));
+        }
     };
 
     match get_tasks_from_db(token.username).await {
         Ok(tasks_from_db) => {
             let message = Response::task_response("Ok".to_string(), tasks_from_db.unwrap().tasks);
-            Ok(warp::reply::json(&message))
+            Ok(Box::new(warp::reply::with_status(
+                warp::reply::json(&message),
+                warp::http::StatusCode::INTERNAL_SERVER_ERROR,
+            )))
         }
         Err(err) => {
             let message = Response::message_only(err.to_string());
-            Ok(warp::reply::json(&message))
+            Ok(Box::new(warp::reply::with_status(
+                warp::reply::json(&message),
+                warp::http::StatusCode::INTERNAL_SERVER_ERROR,
+            )))
         }
     }
 }

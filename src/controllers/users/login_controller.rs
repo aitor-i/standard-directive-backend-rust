@@ -14,7 +14,7 @@ pub fn login_controller() -> impl Filter<Extract = impl Reply, Error = Rejection
         .and_then(request_mapper)
         .boxed()
 }
-async fn request_mapper(body: User) -> Result<impl Reply, Rejection> {
+async fn request_mapper(body: User) -> Result<Box<dyn Reply>, Rejection> {
     let db_res = find_user_by_username(&body.username).await;
     if let Ok(Some(user)) = &db_res {
         if is_password_correct(body.password.clone(), &user.password.clone()) {
@@ -25,11 +25,26 @@ async fn request_mapper(body: User) -> Result<impl Reply, Rejection> {
             };
             let response =
                 Response::login_response("Loged!".to_string(), token, body.username.clone());
-            Ok(warp::reply::json(&response))
+            Ok(Box::new(warp::reply::with_status(
+                warp::reply::json(&response),
+                warp::http::StatusCode::OK,
+            )))
         } else {
-            return Ok(warp::reply::json(&"invalid username or password"));
+            return {
+                let response = Response::message_only("Invalid username or password".to_string());
+                Ok(Box::new(warp::reply::with_status(
+                    warp::reply::json(&response),
+                    warp::http::StatusCode::UNAUTHORIZED,
+                )))
+            };
         }
     } else {
-        return Ok(warp::reply::json(&"invalid username or password"));
+        return {
+            let response = Response::message_only("Invalid username or password".to_string());
+            Ok(Box::new(warp::reply::with_status(
+                warp::reply::json(&response),
+                warp::http::StatusCode::UNAUTHORIZED,
+            )))
+        };
     }
 }

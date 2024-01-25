@@ -1,5 +1,6 @@
 use warp::{Filter, Rejection, Reply};
 
+use crate::domain::models::response::Response;
 use crate::{
     application::has_password::hash_password,
     data_access::users::{add_user_db::add_user_db, is_username_free::is_username_free},
@@ -14,18 +15,40 @@ pub fn register_user_controller() -> impl Filter<Extract = impl Reply, Error = R
         .boxed()
 }
 
-async fn request_mapper(mut body: User) -> Result<impl Reply, Rejection> {
+async fn request_mapper(mut body: User) -> Result<Box<dyn Reply>, Rejection> {
     if let Ok(false) = is_username_free(&body.username).await {
-        return Ok(warp::reply::json(&"userna is taken"));
+        let message = Response::message_only("Username is taken".to_string());
+        return Ok(Box::new(warp::reply::with_status(
+            warp::reply::json(&message),
+            warp::http::StatusCode::BAD_REQUEST,
+        )));
     }
     let hashed_password = hash_password(body.password.clone());
     match hashed_password {
         Ok(hased) => body.password = hased,
-        Err(err) => return Ok(warp::reply::json(&err.to_string())),
+        Err(err) => {
+            let message = Response::message_only(err.to_string());
+            return Ok(Box::new(warp::reply::with_status(
+                warp::reply::json(&message),
+                warp::http::StatusCode::UNAUTHORIZED,
+            )));
+        }
     };
     let db_res = add_user_db(&body).await;
     match db_res {
-        Ok(()) => Ok(warp::reply::json(&body)),
-        Err(err) => Ok(warp::reply::json(&err.to_string())),
+        Ok(()) => {
+            let message = Response::message_only("Success".to_string());
+            return Ok(Box::new(warp::reply::with_status(
+                warp::reply::json(&message),
+                warp::http::StatusCode::OK,
+            )));
+        }
+        Err(err) => {
+            let message = Response::message_only(err.to_string());
+            return Ok(Box::new(warp::reply::with_status(
+                warp::reply::json(&message),
+                warp::http::StatusCode::UNAUTHORIZED,
+            )));
+        }
     }
 }

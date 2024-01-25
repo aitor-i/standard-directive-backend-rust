@@ -15,18 +15,33 @@ pub fn update_password_controller() -> impl Filter<Extract = impl Reply, Error =
         .and_then(request_handler)
 }
 
-async fn request_handler(mut body: User) -> Result<impl Reply, Rejection> {
+async fn request_handler(mut body: User) -> Result<Box<impl Reply>, Rejection> {
     let hashed_password = hash_password(body.password.clone());
     match hashed_password {
         Ok(hased) => body.password = hased,
-        Err(err) => return Ok(warp::reply::json(&err.to_string())),
+        Err(err) => {
+            let message = Response::message_only(err.to_string());
+            return Ok(Box::new(warp::reply::with_status(
+                warp::reply::json(&message),
+                warp::http::StatusCode::UNAUTHORIZED,
+            )));
+        }
     };
     let db_res = update_password(body.username.clone(), body.password).await;
     match db_res {
         Ok(()) => {
             let message = Response::message_only("Password updated!".to_string());
-            Ok(warp::reply::json(&message))
+            return Ok(Box::new(warp::reply::with_status(
+                warp::reply::json(&message),
+                warp::http::StatusCode::OK,
+            )));
         }
-        Err(err) => Ok(warp::reply::json(&err.to_string())),
+        Err(err) => {
+            let message = Response::message_only(err.to_string());
+            return Ok(Box::new(warp::reply::with_status(
+                warp::reply::json(&message),
+                warp::http::StatusCode::UNAUTHORIZED,
+            )));
+        }
     }
 }

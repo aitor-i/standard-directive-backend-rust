@@ -33,5 +33,6 @@ async fn main() {
         .or(tasks_router())
         .with(cors);
 
+    println!("server runing on port 4040");
     warp::serve(router).run(([127, 0, 0, 1], 4040)).await;
 }

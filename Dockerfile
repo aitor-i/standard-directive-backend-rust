@@ -1,31 +1,22 @@
+# Builder stage
+FROM rust:1.75 as builder
 
-# Use a Rust base image
-FROM rust:1.65 as builder
+WORKDIR /usr/src/app
 
-# Create a new empty shell project
-RUN USER=root cargo new --bin rust_rest_api
-WORKDIR /rust_rest_api
-
-# Copy your manifests
-COPY ./Cargo.lock ./Cargo.lock
-COPY ./Cargo.toml ./Cargo.toml
-
-# This build step will cache your dependencies
-RUN cargo build --release
-RUN rm src/*.rs
-
-# Copy your source tree
+# Copy the source code and manifest files
 COPY ./src ./src
+COPY ./Cargo.toml ./Cargo.toml
+COPY ./Cargo.lock ./Cargo.lock
+COPY ./.env ./.env
 
-# Build for release
-RUN rm ./target/release/deps/rust_rest_api*
+# Build the application
 RUN cargo build --release
 
 # Final base image
-FROM debian:buster-slim
+FROM rust:1.75
 
-# Copy the build artifact from the build stage
-COPY --from=builder /rust_rest_api/target/release/rust_rest_api .
+# Copy the build artifact from the builder stage
+COPY --from=builder /usr/src/app/target/release/standard-directive-n2-backend .
 
 # Set the startup command to run your binary
-CMD ["./rust_rest_api"]
+CMD ["./standard-directive-n2-backend"]

@@ -7,7 +7,7 @@ WORKDIR /usr/src/app
 COPY ./src ./src
 COPY ./Cargo.toml ./Cargo.toml
 COPY ./Cargo.lock ./Cargo.lock
-COPY ./.env ./.env
+#COPY ./.env ./.env
 
 # Build the application
 RUN cargo build --release

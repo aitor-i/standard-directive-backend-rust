@@ -35,7 +35,7 @@ async fn request_handler(params: QueryParams) -> Result<Box<impl Reply>, Rejecti
             let message = Response::task_response("Ok".to_string(), tasks_from_db.unwrap().tasks);
             Ok(Box::new(warp::reply::with_status(
                 warp::reply::json(&message),
-                warp::http::StatusCode::INTERNAL_SERVER_ERROR,
+                warp::http::StatusCode::OK,
             )))
         }
         Err(err) => {

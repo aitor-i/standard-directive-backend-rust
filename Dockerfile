@@ -1,6 +1,6 @@
 
 # Use a Rust base image
-FROM rust:1.63 as builder
+FROM rust:1.65 as builder
 
 # Create a new empty shell project
 RUN USER=root cargo new --bin rust_rest_api

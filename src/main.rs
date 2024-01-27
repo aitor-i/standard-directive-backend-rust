@@ -28,11 +28,21 @@ async fn main() {
         .allow_headers(vec!["content-type", "Authorization"])
         .build();
 
-    let router = calendar_router()
+    let root_route = warp::path::end().and_then(root_handler);
+
+    let router = root_route
+        .or(calendar_router())
         .or(users_router())
         .or(tasks_router())
         .with(cors);
 
     println!("server runing on port 4040");
     warp::serve(router).run(([127, 0, 0, 1], 4040)).await;
+}
+
+pub async fn root_handler() -> Result<impl warp::Reply, warp::Rejection> {
+    Ok(warp::reply::with_status(
+        "Server is up",
+        warp::http::StatusCode::OK,
+    ))
 }

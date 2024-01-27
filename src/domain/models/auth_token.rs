@@ -14,7 +14,7 @@ pub struct Roles(Vec<String>);
 impl AuthToken {
     pub fn without_roles(username: String) -> AuthToken {
         let expiration_time = Utc::now()
-            .checked_add_signed(Duration::hours(24))
+            .checked_add_signed(Duration::minutes(30))
             .expect("valid timestamp")
             .timestamp();
         AuthToken {
@@ -22,5 +22,12 @@ impl AuthToken {
             roles: None,
             exp: expiration_time,
         }
+    }
+    pub fn is_token_expired(token: Self) -> bool {
+        let curren_time = Utc::now().timestamp();
+        if curren_time > token.exp {
+            return true;
+        }
+        return false;
     }
 }

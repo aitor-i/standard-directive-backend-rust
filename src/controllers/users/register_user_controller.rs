@@ -1,5 +1,8 @@
 use warp::{Filter, Rejection, Reply};
 
+use crate::application::generate_token::generate_token;
+use crate::data_access::users::is_email_free::is_email_free;
+use crate::domain::models::auth_token::AuthToken;
 use crate::domain::models::response::Response;
 use crate::{
     application::has_password::hash_password,
@@ -23,6 +26,15 @@ async fn request_mapper(mut body: User) -> Result<Box<dyn Reply>, Rejection> {
             warp::http::StatusCode::BAD_REQUEST,
         )));
     }
+
+    if let Ok(false) = is_email_free(&body.email).await {
+        let message = Response::message_only("Email is taken".to_string());
+        return Ok(Box::new(warp::reply::with_status(
+            warp::reply::json(&message),
+            warp::http::StatusCode::BAD_REQUEST,
+        )));
+    }
+
     let hashed_password = hash_password(body.password.clone());
     match hashed_password {
         Ok(hased) => body.password = hased,
@@ -34,10 +46,20 @@ async fn request_mapper(mut body: User) -> Result<Box<dyn Reply>, Rejection> {
             )));
         }
     };
+
     let db_res = add_user_db(&body).await;
     match db_res {
         Ok(()) => {
-            let message = Response::message_only("Success".to_string());
+            let auth_token = AuthToken::without_roles(body.username.clone());
+            let token = match generate_token(auth_token) {
+                Ok(token_ok) => token_ok,
+                Err(_) => "Error on token generation".to_string(),
+            };
+            let message = Response::login_response(
+                "Success on register-user".to_string(),
+                token,
+                body.username,
+            );
             return Ok(Box::new(warp::reply::with_status(
                 warp::reply::json(&message),
                 warp::http::StatusCode::OK,

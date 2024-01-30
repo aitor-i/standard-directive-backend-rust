@@ -15,6 +15,8 @@ RUN cargo build
 # Now that the dependencies are built, copy your source code
 COPY ./src ./src
 
+EXPOSE 4040
+
 
 # Set the CMD to your binary
 CMD ["cargo", "run"]

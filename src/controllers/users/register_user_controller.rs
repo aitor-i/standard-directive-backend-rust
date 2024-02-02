@@ -42,7 +42,7 @@ async fn request_mapper(mut body: User) -> Result<Box<dyn Reply>, Rejection> {
             let message = Response::message_only(err.to_string());
             return Ok(Box::new(warp::reply::with_status(
                 warp::reply::json(&message),
-                warp::http::StatusCode::UNAUTHORIZED,
+                warp::http::StatusCode::INTERNAL_SERVER_ERROR,
             )));
         }
     };

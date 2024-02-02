@@ -1,22 +1,22 @@
-# Start by building from a Rust image
-FROM rust:latest as builder
+# Builder stage
+FROM rust:1.75 as builder
 
-# Create a new empty shell project
-RUN USER=root cargo new --bin rustapp
-WORKDIR /rustapp
+WORKDIR /usr/src/app
 
-# Copy your manifests
-COPY ./Cargo.lock ./Cargo.lock
-COPY ./Cargo.toml ./Cargo.toml
-
-# This build step will cache your dependencies
-RUN cargo build
-
-# Now that the dependencies are built, copy your source code
+# Copy the source code and manifest files
 COPY ./src ./src
+COPY ./Cargo.toml ./Cargo.toml
+COPY ./Cargo.lock ./Cargo.lock
+#COPY ./.env ./.env
 
-EXPOSE 4040
+# Build the application
+RUN cargo build --release
 
+# Final base image
+FROM rust:1.75
 
-# Set the CMD to your binary
-CMD ["cargo", "run"]
+# Copy the build artifact from the builder stage
+COPY --from=builder /usr/src/app/target/release/standard-directive-n2-backend .
+
+# Set the startup command to run your binary
+CMD ["./standard-directive-n2-backend"]

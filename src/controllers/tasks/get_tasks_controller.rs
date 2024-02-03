@@ -31,8 +31,15 @@ async fn request_handler(params: QueryParams) -> Result<Box<impl Reply>, Rejecti
     };
 
     match get_tasks_from_db(token.username).await {
-        Ok(tasks_from_db) => {
-            let message = Response::task_response("Ok".to_string(), tasks_from_db.unwrap().tasks);
+        Ok(Some(tasks_from_db)) => {
+            let message = Response::task_response("Ok".to_string(), tasks_from_db.tasks);
+            Ok(Box::new(warp::reply::with_status(
+                warp::reply::json(&message),
+                warp::http::StatusCode::OK,
+            )))
+        }
+        Ok(None) => {
+            let message = Response::task_response("No tasks".to_string(), vec![]);
             Ok(Box::new(warp::reply::with_status(
                 warp::reply::json(&message),
                 warp::http::StatusCode::OK,

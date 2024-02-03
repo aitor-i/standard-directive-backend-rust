@@ -41,4 +41,14 @@ impl Response {
             tasks: Some(tasks),
         }
     }
+
+    pub fn calendar_response(message: String, calendar: CalendarToSave) -> Response {
+        Response {
+            message,
+            token: None,
+            username: None,
+            calendar: Some(calendar),
+            tasks: None,
+        }
+    }
 }

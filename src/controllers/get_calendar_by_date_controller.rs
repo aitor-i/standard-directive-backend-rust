@@ -20,7 +20,14 @@ async fn request_mapper(params: QueryParams) -> Result<Box<dyn Reply>, Rejection
         Ok(token) => {
             let db_res = get_calendar_by_date(date, token.username).await;
             match db_res {
-                Ok(calendar) => Ok(Box::new(warp::reply::json(&calendar))),
+                Ok(Some(calendar)) => {
+                    let message = Response::calendar_response("Seuccess".to_string(), calendar);
+                    Ok(Box::new(warp::reply::json(&message)))
+                }
+                Ok(None) => {
+                    let message = Response::message_only("No callendar founs".to_string());
+                    Ok(Box::new(warp::reply::json(&message)))
+                }
                 Err(err) => {
                     let message = err.to_string();
                     Ok(Box::new(warp::reply::with_status(

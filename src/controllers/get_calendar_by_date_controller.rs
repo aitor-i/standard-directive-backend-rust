@@ -21,7 +21,8 @@ async fn request_mapper(params: QueryParams) -> Result<Box<dyn Reply>, Rejection
             let db_res = get_calendar_by_date(date, token.username).await;
             match db_res {
                 Ok(Some(calendar)) => {
-                    let message = Response::calendar_response("Seuccess".to_string(), calendar);
+                    let message =
+                        Response::calendar_response("Seuccess".to_string(), calendar.calendar);
                     Ok(Box::new(warp::reply::json(&message)))
                 }
                 Ok(None) => {
@@ -29,7 +30,8 @@ async fn request_mapper(params: QueryParams) -> Result<Box<dyn Reply>, Rejection
                     Ok(Box::new(warp::reply::json(&message)))
                 }
                 Err(err) => {
-                    let message = err.to_string();
+                    println!("{}", err);
+                    let message = "Error getting calendars";
                     Ok(Box::new(warp::reply::with_status(
                         warp::reply::json(&message),
                         warp::http::StatusCode::INTERNAL_SERVER_ERROR,

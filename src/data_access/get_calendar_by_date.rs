@@ -3,12 +3,12 @@ use mongodb::bson::doc;
 use mongodb::Client;
 use std::env;
 
-use crate::domain::models::calendar_to_save::CalendarToSave;
+use crate::domain::models::calendar_db::CalendarDb;
 
 pub async fn get_calendar_by_date(
     date: String,
     user_id: String,
-) -> Result<Option<CalendarToSave>, mongodb::error::Error> {
+) -> Result<Option<CalendarDb>, mongodb::error::Error> {
     dotenv().ok();
 
     let connection_string = env::var("CONNECTION_STRING").expect("DATABASE_URL must be set");
@@ -17,7 +17,7 @@ pub async fn get_calendar_by_date(
 
     let client = Client::with_uri_str(connection_string).await?;
     let database = client.database(db_name);
-    let collection = database.collection::<CalendarToSave>(collection_name);
+    let collection = database.collection::<CalendarDb>(collection_name);
 
     dbg!(&date.to_string());
 

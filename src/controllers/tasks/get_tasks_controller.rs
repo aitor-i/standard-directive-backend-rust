@@ -22,10 +22,11 @@ async fn request_handler(params: QueryParams) -> Result<Box<impl Reply>, Rejecti
     let token = match validate_token(&params.token) {
         Ok(token) => token,
         Err(err) => {
-            let message = err.to_string();
+            println!("{}", err);
+            let message = "Invalid token".to_string();
             return Ok(Box::new(warp::reply::with_status(
                 warp::reply::json(&message),
-                warp::http::StatusCode::INTERNAL_SERVER_ERROR,
+                warp::http::StatusCode::UNAUTHORIZED,
             )));
         }
     };

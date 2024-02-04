@@ -11,5 +11,7 @@ pub fn validate_token(token: &str) -> Result<AuthToken, jsonwebtoken::errors::Er
 
     let validation = Validation::default();
 
+    println!("Token validation, token: {}", token);
+
     decode::<AuthToken>(token, &decoding_key, &validation).map(|data| data.claims)
 }

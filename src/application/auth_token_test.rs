@@ -5,9 +5,6 @@ mod tests {
         domain::models::auth_token::AuthToken,
     };
 
-    use super::*;
-    use chrono::Utc;
-    use serde_json::json;
     use std::env;
 
     // Setup function to configure the environment for tests

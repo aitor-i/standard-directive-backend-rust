@@ -8,6 +8,7 @@ pub mod routers;
 
 use routers::calendar_router::calendar_router;
 use routers::tasks_router::tasks_router;
+use routers::trackers_routers::trackers_router;
 use routers::users_router::users_router;
 use warp::Filter;
 
@@ -34,6 +35,7 @@ async fn main() {
         .or(calendar_router())
         .or(users_router())
         .or(tasks_router())
+        .or(trackers_router())
         .with(cors);
 
     println!("server runing on port 4040");

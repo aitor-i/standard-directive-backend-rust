@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use super::{calendar::Calendar, task::Task};
+use super::{calendar::Calendar, task::Task, trackers::TrackerObject};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Response {
@@ -9,6 +9,7 @@ pub struct Response {
     username: Option<String>,
     calendar: Option<[Calendar; 24]>,
     tasks: Option<Vec<Task>>,
+    trackers: Option<Vec<TrackerObject>>,
 }
 
 impl Response {
@@ -19,6 +20,7 @@ impl Response {
             username: None,
             calendar: None,
             tasks: None,
+            trackers: None,
         }
     }
 
@@ -29,6 +31,7 @@ impl Response {
             username: Some(username),
             calendar: None,
             tasks: None,
+            trackers: None,
         }
     }
 
@@ -39,6 +42,18 @@ impl Response {
             username: None,
             calendar: None,
             tasks: Some(tasks),
+            trackers: None,
+        }
+    }
+
+    pub fn tracker_response(message: String, trackers: Vec<TrackerObject>) -> Response {
+        Response {
+            message,
+            token: None,
+            username: None,
+            calendar: None,
+            tasks: None,
+            trackers: Some(trackers),
         }
     }
 
@@ -49,6 +64,7 @@ impl Response {
             username: None,
             calendar: Some(calendar),
             tasks: None,
+            trackers: None,
         }
     }
 }

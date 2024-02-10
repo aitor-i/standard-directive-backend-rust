@@ -13,7 +13,7 @@ pub struct DayObject {
     completed: bool,
     day: u8,
     color: String,
-    year: u8,
+    year: u16,
     month: u8,
 }
 

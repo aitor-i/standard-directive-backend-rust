@@ -1,10 +1,11 @@
 use warp::{Filter, Rejection, Reply};
 
 use crate::data_access::trackers::add_trackers_db::add_tracker_to_db;
+use crate::data_access::trackers::get_trackers_from_db::get_trackers_from_db;
 use crate::domain::models::response::Response;
 
 use crate::application::validate_token::validate_token;
-use crate::domain::models::trackers::{TrackerViewModel, TrackersDB};
+use crate::domain::models::trackers::{TrackerObject, TrackerViewModel, TrackersDB};
 
 pub fn post_add_tracker_controller() -> impl Filter<Extract = impl Reply, Error = Rejection> + Clone
 {
@@ -26,9 +27,23 @@ async fn repuest_handler(body: TrackerViewModel) -> Result<impl Reply, Rejection
         }
     };
 
+    let trackers = match get_trackers_from_db(token.username.clone()).await {
+        Ok(Some(trackers_from_db)) => trackers_from_db.trackers,
+        Ok(None) => vec![] as Vec<TrackerObject>,
+        Err(_) => vec![] as Vec<TrackerObject>,
+    };
+
+    for mut tracker in trackers.clone() {
+        for new_tracker in body.trackers.clone() {
+            if new_tracker.id == tracker.id {
+                tracker.days = new_tracker.days;
+            }
+        }
+    }
+
     let tracks_for_db = TrackersDB {
-        username: token.username,
-        trackers: body.trackers,
+        username: token.username.clone(),
+        trackers,
     };
 
     match add_tracker_to_db(tracks_for_db).await {

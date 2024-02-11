@@ -1,9 +1,8 @@
-use crate::{
-    application::struct_to_document::struct_to_document, domain::models::trackers::TrackersDB,
-};
+use crate::domain::models::trackers::TrackersDB;
 
-use bson::Document;
+use bson::{doc, Document};
 use dotenv::dotenv;
+use mongodb::error::Error;
 use mongodb::{Client, Collection};
 use std::env;
 
@@ -18,8 +17,31 @@ pub async fn add_tracker_to_db(trackers: TrackersDB) -> mongodb::error::Result<(
     let database = client.database(db_name);
     let collection: Collection<Document> = database.collection(collection_name);
 
-    let tracker_document = struct_to_document(&trackers).expect("Error");
-    collection.insert_one(tracker_document, None).await?;
+    let filter = doc! { "username": trackers.username   };
 
-    Ok(())
+    match bson::to_bson(&trackers.trackers) {
+        Ok(trackers_bson) => {
+            let update = doc! { "$set": { "trackers": trackers_bson} };
+
+            match collection.update_one(filter, update, None).await {
+                Ok(colletion) => {
+                    println!("Update");
+                    if colletion.matched_count == 0 {
+                        let custom_error = Error::custom("No tracker found");
+                        return Err(custom_error);
+                    };
+                    return Ok(());
+                }
+
+                Err(err) => {
+                    println!("Error or saving { }", err);
+                    return Err(err);
+                }
+            }
+        }
+        Err(err) => {
+            println!("Error on parsing {}", err);
+            Ok(())
+        }
+    }
 }

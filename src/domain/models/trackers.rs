@@ -4,8 +4,8 @@ use serde::{Deserialize, Serialize};
 #[allow(non_snake_case)]
 pub struct TrackerObject {
     title: String,
-    id: String,
-    days: Vec<DayObject>,
+    pub id: String,
+    pub days: Vec<DayObject>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]

@@ -12,7 +12,7 @@ pub async fn get_trackers_from_db(
 
     let connection_string = env::var("CONNECTION_STRING").expect("DATABASE_URL must be set");
     let db_name = "standard_directive";
-    let collection_name = "tasks";
+    let collection_name = "trackers";
 
     let client = Client::with_uri_str(connection_string).await?;
     let database = client.database(db_name);

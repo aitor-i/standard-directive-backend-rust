@@ -2,7 +2,6 @@ use crate::domain::models::trackers::TrackersDB;
 
 use bson::{doc, Document};
 use dotenv::dotenv;
-use mongodb::error::Error;
 use mongodb::{Client, Collection};
 use std::env;
 

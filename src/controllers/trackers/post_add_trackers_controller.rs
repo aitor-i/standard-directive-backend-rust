@@ -29,16 +29,35 @@ async fn repuest_handler(body: TrackerViewModel) -> Result<impl Reply, Rejection
 
     let trackers = match get_trackers_from_db(token.username.clone()).await {
         Ok(Some(trackers_from_db)) => trackers_from_db.trackers,
-        Ok(None) => vec![] as Vec<TrackerObject>,
+        Ok(None) => body.trackers.clone() as Vec<TrackerObject>,
         Err(_) => vec![] as Vec<TrackerObject>,
     };
 
-    for mut tracker in trackers.clone() {
+    // Update days
+    let mut updated_trackers: Vec<TrackerObject> = vec![];
+    for mut tracker in trackers.into_iter() {
         for new_tracker in body.trackers.clone() {
             if new_tracker.id == tracker.id {
                 tracker.days = new_tracker.days;
             }
         }
+        updated_trackers.push(tracker);
+    }
+
+    let mut trackers = updated_trackers;
+
+    // Add new trackers
+    for new_tracker in body.trackers {
+        let mut is_in_db = false;
+
+        for db_tracker in &trackers {
+            if db_tracker.id == new_tracker.id {
+                is_in_db = true
+            };
+        }
+        if !is_in_db {
+            trackers.push(new_tracker)
+        };
     }
 
     let tracks_for_db = TrackersDB {

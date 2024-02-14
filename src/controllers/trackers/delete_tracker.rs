@@ -1,5 +1,3 @@
-use std::string;
-
 use serde::{Deserialize, Serialize};
 use warp::{Filter, Rejection, Reply};
 
@@ -8,7 +6,7 @@ use crate::data_access::trackers::get_trackers_from_db::get_trackers_from_db;
 use crate::domain::models::response::Response;
 
 use crate::application::validate_token::validate_token;
-use crate::domain::models::trackers::{TrackerObject, TrackerViewModel, TrackersDB};
+use crate::domain::models::trackers::{TrackerObject, TrackersDB};
 
 #[derive(Debug, Serialize, Deserialize)]
 struct QueryParams {

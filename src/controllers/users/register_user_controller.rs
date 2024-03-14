@@ -1,6 +1,7 @@
 use warp::{Filter, Rejection, Reply};
 
 use crate::application::generate_token::generate_token;
+use crate::data_access::users::is_code_valid::is_code_valid;
 use crate::data_access::users::is_email_free::is_email_free;
 use crate::domain::models::auth_token::AuthToken;
 use crate::domain::models::response::Response;
@@ -19,8 +20,8 @@ pub fn register_user_controller() -> impl Filter<Extract = impl Reply, Error = R
 }
 
 async fn request_mapper(mut body: User) -> Result<Box<dyn Reply>, Rejection> {
-    if let Ok(false) = is_username_free(&body.code).await {
-        let message = Response::message_only("Username is taken".to_string());
+    if let Ok(false) = is_code_valid(&body.code).await {
+        let message = Response::message_only("Invalid code".to_string());
         return Ok(Box::new(warp::reply::with_status(
             warp::reply::json(&message),
             warp::http::StatusCode::BAD_REQUEST,

@@ -19,12 +19,13 @@ pub fn register_user_controller() -> impl Filter<Extract = impl Reply, Error = R
 }
 
 async fn request_mapper(mut body: User) -> Result<Box<dyn Reply>, Rejection> {
-    let message = Response::message_only("Invalid code".to_string());
-    return Ok(Box::new(warp::reply::with_status(
-        warp::reply::json(&message),
-        warp::http::StatusCode::BAD_REQUEST,
-    )));
-
+    if let Ok(false) = is_username_free(&body.code).await {
+        let message = Response::message_only("Username is taken".to_string());
+        return Ok(Box::new(warp::reply::with_status(
+            warp::reply::json(&message),
+            warp::http::StatusCode::BAD_REQUEST,
+        )));
+    }
     if let Ok(false) = is_username_free(&body.username).await {
         let message = Response::message_only("Username is taken".to_string());
         return Ok(Box::new(warp::reply::with_status(
